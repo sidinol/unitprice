@@ -1,15 +1,13 @@
 self.addEventListener("install", function (e) {
-  e.waitUntil(
-    caches.open("unitcalc-cache").then(function (cache) {
-      return cache.addAll(["index.html"]);
-    })
-  );
+  console.log("Service Worker: Installed");
+  e.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", function (e) {
+  console.log("Service Worker: Activated");
+  return self.clients.claim();
 });
 
 self.addEventListener("fetch", function (e) {
-  e.respondWith(
-    caches.match(e.request).then(function (response) {
-      return response || fetch(e.request);
-    })
-  );
+  // 네트워크 요청을 그대로 통과시킴 (캐시 없음)
 });
