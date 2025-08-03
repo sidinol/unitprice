@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>단가 계산기</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
@@ -13,12 +13,12 @@
 </head>
 <body>
   <h1>단위 단가 계산기</h1>
-  <input type="file" accept="image/*" id="singleInput">
-  <br><br>
+  <input type="file" accept="image/*" id="singleInput" />
+  <br /><br />
   <img id="preview" style="max-width: 300px; display: none;" />
   <div id="ocrFields" style="display: none;">
-    <p>가격: <input id="price" type="text"></p>
-    <p>용량: <input id="volume" type="text"></p>
+    <p>가격: <input id="price" type="text" /></p>
+    <p>용량: <input id="volume" type="text" /></p>
     <button onclick="calculate()">단가 계산</button>
   </div>
   <div id="result" style="margin-top: 20px; font-weight: bold;"></div>
@@ -29,56 +29,60 @@
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = async function(e) {
+      reader.onload = async function (e) {
         const base64 = e.target.result;
-        document.getElementById('preview').src = base64;
-        document.getElementById('preview').style.display = "block";
-        document.getElementById('ocrFields').style.display = 'none';
-        document.getElementById('result').style.display = 'none';
+        document.getElementById("preview").src = base64;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("ocrFields").style.display = "none";
+        document.getElementById("result").style.display = "none";
 
         try {
-          const response = await fetch("https://script.google.com/macros/s/AKfycbxxoWiYq7ZUhZNLbMFsIV3qZgVmrsK5t-Qv70qrkZtXS6njM0NIRlbzOII31K32J2k/exec", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: base64 })
-          });
+          const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbxixs-wr7ORrH5lFVHLkUGfP6V0x9dNi1Bqw4J_SvxGDYNkP5r-J_a0Vue4vXYD0cw/exec",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ image: base64 }),
+            }
+          );
           const json = await response.json();
           const text = json?.text || "";
           extractFields(text);
         } catch (err) {
           alert("OCR 처리 중 오류: " + err.message);
+          console.error(err);
         }
       };
       reader.readAsDataURL(file);
     }
 
-    document.getElementById('singleInput').addEventListener('change', function () {
+    document.getElementById("singleInput").addEventListener("change", function () {
       handleFileInput(this);
     });
 
     function extractFields(text) {
-      let price = '', volume = '';
-      const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
+      let price = "", volume = "";
+      const lines = text.split("\n").map(line => line.trim()).filter(Boolean);
       const priceMatch = text.match(/(\d{1,3},\d{3}|\d{3,6})/);
-      if (priceMatch) price = priceMatch[0].replace(/,/g, '');
+      if (priceMatch) price = priceMatch[0].replace(/,/g, "");
 
       for (let line of lines) {
         let volMatch = line.match(/(\d+(\.\d+)?)(ml|g|kg|L|oz)/i);
         if (volMatch) {
-          volume = volMatch[0].replace(/\s/g, '');
+          volume = volMatch[0].replace(/\s/g, "");
           break;
         }
       }
 
-      document.getElementById('price').value = price;
-      document.getElementById('volume').value = volume;
-      document.getElementById('ocrFields').style.display = 'block';
+      document.getElementById("price").value = price;
+      document.getElementById("volume").value = volume;
+      document.getElementById("ocrFields").style.display = "block";
       if (price && volume) setTimeout(calculate, 200);
     }
 
     function calculate() {
-      let price = parseFloat(document.getElementById('price').value.replace(/[₩$,]/g, ''));
-      let volume = document.getElementById('volume').value.trim();
+      let price = parseFloat(document.getElementById("price").value.replace(/[₩$,]/g, ""));
+      let volume = document.getElementById("volume").value.trim();
       const volMatch = volume.match(/(\d+(\.\d+)?)(ml|g|kg|L|oz)/i);
       if (!price || !volMatch) {
         alert("가격과 용량을 확인하세요.");
@@ -86,11 +90,11 @@
       }
       let qty = parseFloat(volMatch[1]);
       let unit = volMatch[3].toLowerCase();
-      let baseQty = (unit === 'ml' || unit === 'g') ? 100 : 1;
-      let baseUnit = (unit === 'ml') ? '100ml' : (unit === 'g') ? '100g' : `1${unit}`;
+      let baseQty = (unit === "ml" || unit === "g") ? 100 : 1;
+      let baseUnit = (unit === "ml") ? "100ml" : (unit === "g") ? "100g" : `1${unit}`;
       let unitPrice = Math.round(price / qty * baseQty);
-      document.getElementById('result').textContent = `${baseUnit} 당 ${unitPrice.toLocaleString()}원`;
-      document.getElementById('result').style.display = 'block';
+      document.getElementById("result").textContent = `${baseUnit} 당 ${unitPrice.toLocaleString()}원`;
+      document.getElementById("result").style.display = "block";
     }
   </script>
 </body>
