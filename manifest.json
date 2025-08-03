@@ -1,7 +1,7 @@
 {
   "name": "단위 단가 계산기",
   "short_name": "단가계산기",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#196aff",
